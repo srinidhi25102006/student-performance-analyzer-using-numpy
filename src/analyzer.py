@@ -390,3 +390,41 @@ def get_overall_subject_analytics(
     }
 
 
+def compute_student_rankings(
+    students: List[str],
+    averages: np.ndarray
+) -> List[Dict[str, Any]]:
+    """
+    CONCEPT: np.argsort() & Competition Tie-Ranking.
+    Ranks students based on overall averages from highest to lowest.
+    Assigns consistent competition ranks for tied averages (e.g. 1, 1, 3).
+    Handles empty arrays gracefully.
+    """
+    if len(students) == 0 or len(averages) == 0:
+        return []
+
+    # Get indices that sort averages descending
+    sorted_indices = np.argsort(-averages)
+
+    rankings: List[Dict[str, Any]] = []
+    current_rank = 1
+
+    for i, idx in enumerate(sorted_indices):
+        avg_val = float(averages[idx])
+        # If not the first student and average equals previous student's average, keep same rank
+        if i > 0 and np.isclose(avg_val, float(averages[sorted_indices[i - 1]])):
+            rank = current_rank
+        else:
+            rank = i + 1
+            current_rank = rank
+
+        rankings.append({
+            "rank": rank,
+            "student": students[idx],
+            "average": avg_val
+        })
+
+    return rankings
+
+
+

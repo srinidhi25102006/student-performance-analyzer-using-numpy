@@ -32,6 +32,7 @@ from analyzer import (
     predict_all_students,
     get_all_students_subject_breakdown,
     get_overall_subject_analytics,
+    compute_student_rankings,
 )
 
 
@@ -168,6 +169,37 @@ def display_detailed_subject_analysis(
     print_divider("-")
 
 
+def display_ranking_leaderboard(students: List[str], marks_array: np.ndarray) -> None:
+    """Displays dedicated Student Ranking Leaderboard table and top/bottom performers."""
+    averages = calculate_student_averages(marks_array)
+    rankings = compute_student_rankings(students, averages)
+
+    print_divider("=")
+    print("                    STUDENT RANKING LEADERBOARD                 ")
+    print_divider("=")
+    header = f"{'Rank':<6} | {'Student':<16} | {'Overall Average':>15}"
+    print(header)
+    print("-" * len(header))
+
+    for r in rankings:
+        print(f"{r['rank']:<6} | {r['student']:<16} | {r['average']:>15.2f}")
+
+    print_divider("-")
+
+    if rankings:
+        top_avg = rankings[0]["average"]
+        top_students = [r["student"] for r in rankings if np.isclose(r["average"], top_avg)]
+        print(f" Top Performing Student(s) : {', '.join(top_students)} - {top_avg:.2f}")
+
+        low_avg = rankings[-1]["average"]
+        low_students = [r["student"] for r in rankings if np.isclose(r["average"], low_avg)]
+        print(f" Lowest Performing Student(s): {', '.join(low_students)} - {low_avg:.2f}")
+    else:
+        print(" No student data available.")
+
+    print_divider("-")
+
+
 def display_class_insights(
     students: List[str],
     subjects: List[str],
@@ -254,6 +286,7 @@ def run_full_report(students: List[str], subjects: List[str], marks_array: np.nd
     display_student_report(students, subjects, marks_array)
     display_subject_report(subjects, marks_array)
     display_detailed_subject_analysis(students, subjects, marks_array)
+    display_ranking_leaderboard(students, marks_array)
     display_class_insights(students, subjects, marks_array)
     display_deviations_report(students, subjects, marks_array)
     display_prediction_report(students, marks_array)
@@ -275,16 +308,17 @@ def main() -> None:
         print("2. View Individual Student Performance (Totals, Averages, Grades, Status)")
         print("3. View Subject-wise Analytics & Best/Worst Subjects")
         print("4. View Detailed Per-Student Subject Analysis (Strongest/Weakest & Ties)")
-        print("5. View Class Insights, High Performers & Rankings")
-        print("6. View Subject Deviations Matrix (NumPy Broadcasting Demo)")
-        print("7. View Student Performance Predictions (NumPy Linear Regression)")
-        print("8. Run Complete Full Analytical Report")
-        print("9. Load & Analyze Student Data from CSV File")
-        print("10. Switch to Custom Interactive Student Data Entry")
-        print("11. Reset to Default Sample Dataset")
-        print("12. Exit Application")
+        print("5. View Student Ranking Leaderboard (Competition Ranking & Ties)")
+        print("6. View Class Insights, High Performers & Rankings")
+        print("7. View Subject Deviations Matrix (NumPy Broadcasting Demo)")
+        print("8. View Student Performance Predictions (NumPy Linear Regression)")
+        print("9. Run Complete Full Analytical Report")
+        print("10. Load & Analyze Student Data from CSV File")
+        print("11. Switch to Custom Interactive Student Data Entry")
+        print("12. Reset to Default Sample Dataset")
+        print("13. Exit Application")
 
-        choice = input("\nEnter your choice (1-12): ").strip()
+        choice = input("\nEnter your choice (1-13): ").strip()
 
         if choice == "1":
             display_marks_table(students, subjects, marks_array)
@@ -296,35 +330,38 @@ def main() -> None:
         elif choice == "4":
             display_detailed_subject_analysis(students, subjects, marks_array)
         elif choice == "5":
-            display_class_insights(students, subjects, marks_array)
+            display_ranking_leaderboard(students, marks_array)
         elif choice == "6":
-            display_deviations_report(students, subjects, marks_array)
+            display_class_insights(students, subjects, marks_array)
         elif choice == "7":
-            display_prediction_report(students, marks_array)
+            display_deviations_report(students, subjects, marks_array)
         elif choice == "8":
-            run_full_report(students, subjects, marks_array)
+            display_prediction_report(students, marks_array)
         elif choice == "9":
+            run_full_report(students, subjects, marks_array)
+        elif choice == "10":
             students, subjects, marks_list = get_csv_dataset()
             marks_array = convert_to_array(marks_list)
             run_full_report(students, subjects, marks_array)
-        elif choice == "10":
+        elif choice == "11":
             students, subjects, marks_list = get_custom_dataset()
             marks_array = convert_to_array(marks_list)
             print("\nCustom data loaded successfully!")
             run_full_report(students, subjects, marks_array)
-        elif choice == "11":
+        elif choice == "12":
             students, subjects, marks_list = get_sample_dataset()
             marks_array = convert_to_array(marks_list)
             print("\nReset back to default sample dataset.")
-        elif choice == "12":
+        elif choice == "13":
             print("\nThank you for using Student Performance Analyzer! Goodbye.")
             sys.exit(0)
         else:
-            print("Invalid choice! Please select an option from 1 to 12.")
+            print("Invalid choice! Please select an option from 1 to 13.")
 
 
 if __name__ == "__main__":
     main()
+
 
 
 

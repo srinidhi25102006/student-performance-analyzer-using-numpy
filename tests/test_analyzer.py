@@ -39,6 +39,7 @@ from analyzer import (
     get_student_subject_breakdown,
     get_all_students_subject_breakdown,
     get_overall_subject_analytics,
+    compute_student_rankings,
 )
 
 
@@ -241,6 +242,38 @@ class TestStudentPerformanceAnalyzer(unittest.TestCase):
         self.assertEqual(breakdowns[0]["strongest"], "Computer Networks")
         self.assertEqual(breakdowns[0]["weakest"], "Mathematics")
 
+    def test_compute_student_rankings_unique(self) -> None:
+        """Tests ranking calculation for multiple students with distinct overall averages."""
+        students = ["Arun", "Divya", "Karthik"]
+        averages = np.array([84.75, 79.25, 91.25])
+        rankings = compute_student_rankings(students, averages)
+        self.assertEqual(rankings[0], {"rank": 1, "student": "Karthik", "average": 91.25})
+        self.assertEqual(rankings[1], {"rank": 2, "student": "Arun", "average": 84.75})
+        self.assertEqual(rankings[2], {"rank": 3, "student": "Divya", "average": 79.25})
+
+    def test_compute_student_rankings_tied(self) -> None:
+        """Tests competition tie-ranking when students have identical overall averages."""
+        students = ["Rahul", "Priya", "Arun"]
+        averages = np.array([90.0, 90.0, 85.0])
+        rankings = compute_student_rankings(students, averages)
+        self.assertEqual(rankings[0]["rank"], 1)
+        self.assertEqual(rankings[1]["rank"], 1)
+        self.assertEqual(rankings[2]["rank"], 3)
+
+    def test_compute_student_rankings_highest_lowest(self) -> None:
+        """Tests identification of highest and lowest performing students from rankings."""
+        averages = calculate_student_averages(self.marks_array)
+        rankings = compute_student_rankings(self.students, averages)
+        self.assertEqual(rankings[0]["student"], "Karthik")
+        self.assertAlmostEqual(rankings[0]["average"], 91.4)
+        self.assertEqual(rankings[-1]["student"], "Rahul")
+        self.assertAlmostEqual(rankings[-1]["average"], 58.4)
+
+    def test_compute_student_rankings_empty(self) -> None:
+        """Tests ranking calculation with an empty dataset."""
+        rankings = compute_student_rankings([], np.array([]))
+        self.assertEqual(rankings, [])
+
     def test_validate_mark_valid(self) -> None:
         """Tests mark validator with valid inputs."""
         self.assertEqual(validate_mark("0"), 0.0)
@@ -312,6 +345,3 @@ class TestStudentPerformanceAnalyzer(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
-
-
-

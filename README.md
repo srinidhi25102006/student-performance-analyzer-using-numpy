@@ -39,9 +39,10 @@ The **Student Performance Analyzer** processes student marks matrices using pure
 8. **Student Rankings**: Rank all students from highest to lowest average score using index sorting (`np.argsort`).
 9. **Score Deviation Matrix**: Calculate score deviations relative to subject averages using 2D/1D **NumPy Broadcasting**.
 10. **Performance Prediction**: Predict next assessment scores, detect score trajectory (`Improving`, `Declining`, `Stable`), and classify academic risk level (`Low Risk`, `Moderate Risk`, `High Risk`) using **NumPy Linear Regression**.
-11. **Subject-wise Performance Analysis**: Analyze each student's marks per subject, identify strongest/weakest subjects, calculate overall subject averages, and identify highest/lowest performing subjects with **graceful tie-handling**.
-12. **CSV Dataset Support**: Load student performance records dynamically from `.csv` files with automated column detection and validation for missing values, invalid ranges, or header errors.
-13. **Interactive CLI & Validation**: Switch between pre-loaded 5x5 sample dataset, custom interactive user entry, and external CSV files with validation ($0 - 100$).
+11. **Student Ranking System**: Compute overall averages, rank students from highest to lowest using **standard competition tie-ranking** (e.g. 1, 1, 3), and highlight top and lowest performing students.
+12. **Subject-wise Performance Analysis**: Analyze each student's marks per subject, identify strongest/weakest subjects, calculate overall subject averages, and identify highest/lowest performing subjects with **graceful tie-handling**.
+13. **CSV Dataset Support**: Load student performance records dynamically from `.csv` files with automated column detection and validation for missing values, invalid ranges, or header errors.
+14. **Interactive CLI & Validation**: Switch between pre-loaded 5x5 sample dataset, custom interactive user entry, and external CSV files with validation ($0 - 100$).
 
 ---
 
@@ -73,7 +74,7 @@ Student_ID,Name,Math,DBMS,OS,Python
 ## Technologies Used
 
 - **Python 3**: Core application logic, `csv` standard library parser, and `unittest`.
-- **NumPy**: Matrix creation, axis aggregations, boolean masking, index sorting, broadcasting, polynomial fitting, and `np.where()` tie resolution.
+- **NumPy**: Matrix creation, axis aggregations, boolean masking, index sorting (`np.argsort`), broadcasting, polynomial fitting, and tie resolution.
 
 ---
 
@@ -91,7 +92,7 @@ This project is tailored for learners mastering NumPy fundamentals:
 | **Standard Deviation** | Measuring class score variance | `np.std(marks_array)` |
 | **Boolean Masking & Ties** | Filtering high performers & resolving tied strongest/weakest subjects | `averages >= 75.0`, `np.where(row_marks == max_mark)` |
 | **Conditional Selection** | Assigning grades and Pass/Fail status | `np.select(conditions, choices)`, `np.where(mask, 'Pass', 'Fail')` |
-| **Index Sorting** | Ranking students from highest to lowest score | `np.argsort(-averages)` |
+| **Index Sorting & Ranking** | Ranking students from highest to lowest score with competition tie resolution | `np.argsort(-averages)`, `compute_student_rankings()` |
 | **Array Broadcasting** | Subtracting 1D subject averages array from 2D marks array | `marks_array - subject_averages` |
 | **Linear Regression & Clipping** | Fitting trend slope to predict next assessment score | `np.polyfit(x, y, 1)`, `np.clip(val, 0, 100)` |
 
@@ -157,19 +158,36 @@ python src/main.py
 2. View Individual Student Performance (Totals, Averages, Grades, Status)
 3. View Subject-wise Analytics & Best/Worst Subjects
 4. View Detailed Per-Student Subject Analysis (Strongest/Weakest & Ties)
-5. View Class Insights, High Performers & Rankings
-6. View Subject Deviations Matrix (NumPy Broadcasting Demo)
-7. View Student Performance Predictions (NumPy Linear Regression)
-8. Run Complete Full Analytical Report
-9. Load & Analyze Student Data from CSV File
-10. Switch to Custom Interactive Student Data Entry
-11. Reset to Default Sample Dataset
-12. Exit Application
+5. View Student Ranking Leaderboard (Competition Ranking & Ties)
+6. View Class Insights, High Performers & Rankings
+7. View Subject Deviations Matrix (NumPy Broadcasting Demo)
+8. View Student Performance Predictions (NumPy Linear Regression)
+9. Run Complete Full Analytical Report
+10. Load & Analyze Student Data from CSV File
+11. Switch to Custom Interactive Student Data Entry
+12. Reset to Default Sample Dataset
+13. Exit Application
 ```
 
-### Running Detailed Subject Analysis via CLI
+### Running Student Ranking Leaderboard via CLI
 
-Select Option `4` in the main menu to display each student's subject breakdown, strongest subject(s), weakest subject(s), and overall class subject averages.
+Select Option `5` in the main menu to display the dedicated **Student Ranking Leaderboard**:
+
+```text
+================================================================================
+                    STUDENT RANKING LEADERBOARD                 
+================================================================================
+Rank   | Student          |  Overall Average
+------------------------------------------------
+1      | Chetan           |            92.50
+2      | Gita             |            91.75
+3      | Aarav            |            88.75
+4      | Jatin            |            87.50
+------------------------------------------------
+ Top Performing Student(s) : Chetan - 92.50
+ Lowest Performing Student(s): Esha - 48.75
+------------------------------------------------
+```
 
 ---
 
@@ -183,9 +201,9 @@ python -m unittest discover -s tests
 
 Expected Test Output:
 ```
-.............................
+.................................
 ----------------------------------------------------------------------
-Ran 29 tests in 0.243s
+Ran 33 tests in 0.159s
 
 OK
 ```

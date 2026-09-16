@@ -233,3 +233,79 @@ def calculate_subject_deviations(marks_array: np.ndarray, subject_averages: np.n
       is subtracted element-wise by subject averages.
     """
     return marks_array - subject_averages
+
+
+def predict_single_student(student_marks: np.ndarray) -> Dict[str, Any]:
+    """
+    CONCEPT: Simple Linear Regression using np.polyfit() & np.clip().
+    Predicts a student's performance on the next assessment based on historical mark sequence.
+    
+    - np.polyfit(x, y, 1) fits a degree-1 polynomial (line: y = slope * x + intercept).
+    - np.clip(val, min, max) ensures predicted marks stay within valid [0, 100] bounds.
+    """
+    num_assessments = len(student_marks)
+    if num_assessments < 2:
+        current_avg = float(np.mean(student_marks)) if num_assessments > 0 else 0.0
+        risk = "Low Risk" if current_avg >= 75.0 else ("Moderate Risk" if current_avg >= 60.0 else "High Risk")
+        return {
+            "current_avg": current_avg,
+            "slope": 0.0,
+            "trend": "Stable",
+            "predicted_score": current_avg,
+            "risk_level": risk
+        }
+
+    # Generate sequence indices x = [0, 1, 2, ..., N-1]
+    x = np.arange(num_assessments)
+    
+    # Fit line: y = slope * x + intercept
+    # np.polyfit returns array [slope, intercept]
+    coefficients = np.polyfit(x, student_marks, deg=1)
+    slope = float(coefficients[0])
+    intercept = float(coefficients[1])
+
+    # Predict score for next assessment index (x_next = num_assessments)
+    next_x = num_assessments
+    predicted_val = slope * next_x + intercept
+    # np.clip ensures output is within [0.0, 100.0]
+    predicted_score = float(np.clip(predicted_val, 0.0, 100.0))
+
+    current_avg = float(np.mean(student_marks))
+
+    # Determine performance trend based on slope
+    if slope > 0.5:
+        trend = "Improving"
+    elif slope < -0.5:
+        trend = "Declining"
+    else:
+        trend = "Stable"
+
+    # Determine risk level based on predicted score and trend
+    if predicted_score < 60.0 or (trend == "Declining" and predicted_score < 70.0):
+        risk_level = "High Risk"
+    elif predicted_score < 75.0:
+        risk_level = "Moderate Risk"
+    else:
+        risk_level = "Low Risk"
+
+    return {
+        "current_avg": current_avg,
+        "slope": slope,
+        "trend": trend,
+        "predicted_score": predicted_score,
+        "risk_level": risk_level
+    }
+
+
+def predict_all_students(students: List[str], marks_array: np.ndarray) -> List[Dict[str, Any]]:
+    """
+    Computes performance predictions for all students in the class.
+    """
+    predictions = []
+    for idx, student in enumerate(students):
+        student_marks = marks_array[idx]
+        pred_dict = predict_single_student(student_marks)
+        pred_dict["student"] = student
+        predictions.append(pred_dict)
+    return predictions
+

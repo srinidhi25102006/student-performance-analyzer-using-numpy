@@ -32,20 +32,21 @@ The **Student Performance Analyzer** processes student marks matrices using pure
 1. **Student Marks Matrix**: View all student marks across all subjects in a formatted ASCII table.
 2. **Total & Average Calculations**: Compute total and average marks for every student using row-wise aggregations (`axis=1`).
 3. **Automated Letter Grading**: Assign grades (`A+`, `A`, `B`, `C`, `D`, `F`) using vectorized grading rules based on average cutoffs.
-4. **Pass/Fail Evaluation**: Determine pass/fail status based on strict multi-subject rules (requires $\ge 40$ mark in all subjects).
+4. **Pass/Fail Evaluation**: Determine pass/fail status based on strict multi-subject rules (requires >= 40 mark in all subjects).
 5. **Subject-Wise Analytics**: Calculate class averages, highest marks, and lowest marks per subject (`axis=0`).
 6. **Class Highlights**: Identify the top-performing student, lowest-performing student, class standard deviation, and best/worst performing subjects.
-7. **High Performers Filter**: Extract students achieving an average mark $\ge 75.0$ using boolean masking.
+7. **High Performers Filter**: Extract students achieving an average mark >= 75.0 using boolean masking.
 8. **Student Rankings**: Rank all students from highest to lowest average score using index sorting (`np.argsort`).
 9. **Score Deviation Matrix**: Calculate score deviations relative to subject averages using 2D/1D **NumPy Broadcasting**.
-10. **Interactive CLI & Validation**: Switch between the pre-loaded 5x5 sample dataset and custom interactive user input with numeric validation ($0 - 100$).
+10. **Performance Prediction**: Predict next assessment scores, detect score trajectory (`Improving`, `Declining`, `Stable`), and classify academic risk level (`Low Risk`, `Moderate Risk`, `High Risk`) using **NumPy Linear Regression**.
+11. **Interactive CLI & Validation**: Switch between the pre-loaded 5x5 sample dataset and custom interactive user input with numeric validation (0 - 100).
 
 ---
 
 ## Technologies Used
 
 - **Python 3**: Core application logic and standard library (`sys`, `unittest`, `typing`).
-- **NumPy**: Matrix creation, axis aggregations, boolean masking, index sorting, and broadcasting.
+- **NumPy**: Matrix creation, axis aggregations, boolean masking, index sorting, broadcasting, and polynomial fitting.
 
 ---
 
@@ -61,10 +62,11 @@ This project is tailored for learners mastering NumPy fundamentals:
 | **Column-wise Aggregation (`axis=0`)** | Calculating class subject averages, max & min | `np.mean(arr, axis=0)`, `np.max(arr, axis=0)`, `np.min(arr, axis=0)` |
 | **Argmax / Argmin** | Locating top student and best/worst subjects | `np.argmax(averages)`, `np.argmin(subject_averages)` |
 | **Standard Deviation** | Measuring class score variance | `np.std(marks_array)` |
-| **Boolean Masking** | Filtering high performers ($\ge 75.0$) & subject pass marks ($\ge 40.0$) | `averages >= 75.0`, `np.all(marks >= 40.0, axis=1)` |
+| **Boolean Masking** | Filtering high performers (>= 75.0) & subject pass marks (>= 40.0) | `averages >= 75.0`, `np.all(marks >= 40.0, axis=1)` |
 | **Conditional Selection** | Assigning grades and Pass/Fail status | `np.select(conditions, choices)`, `np.where(mask, 'Pass', 'Fail')` |
 | **Index Sorting** | Ranking students from highest to lowest score | `np.argsort(-averages)` |
 | **Array Broadcasting** | Subtracting 1D subject averages array from 2D marks array | `marks_array - subject_averages` |
+| **Linear Regression & Clipping** | Fitting trend slope to predict next assessment score | `np.polyfit(x, y, 1)`, `np.clip(val, 0, 100)` |
 
 ---
 

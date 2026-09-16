@@ -29,6 +29,7 @@ from analyzer import (
     get_best_subject,
     get_worst_subject,
     calculate_subject_deviations,
+    predict_all_students,
 )
 
 
@@ -187,6 +188,25 @@ def display_deviations_report(
     print_divider("-")
 
 
+def display_prediction_report(students: List[str], marks_array: np.ndarray) -> None:
+    """Displays student performance trend, predicted score, and risk status using linear regression."""
+    predictions = predict_all_students(students, marks_array)
+
+    print_divider("=")
+    print("      STUDENT PERFORMANCE PREDICTIONS (NumPy Linear Regression) ")
+    print_divider("=")
+    header = f"{'Student':<12} | {'Current Avg':>11} | {'Trend':<10} | {'Predicted Score':>15} | {'Risk Level':<13}"
+    print(header)
+    print("-" * len(header))
+
+    for p in predictions:
+        print(
+            f"{p['student']:<12} | {p['current_avg']:>11.2f} | "
+            f"{p['trend']:<10} | {p['predicted_score']:>15.2f} | {p['risk_level']:<13}"
+        )
+    print_divider("-")
+
+
 def run_full_report(students: List[str], subjects: List[str], marks_array: np.ndarray) -> None:
     """Runs all analytical reports in sequence."""
     display_marks_table(students, subjects, marks_array)
@@ -195,6 +215,7 @@ def run_full_report(students: List[str], subjects: List[str], marks_array: np.nd
     display_subject_report(subjects, marks_array)
     display_class_insights(students, subjects, marks_array)
     display_deviations_report(students, subjects, marks_array)
+    display_prediction_report(students, marks_array)
 
 
 def main() -> None:
@@ -214,12 +235,13 @@ def main() -> None:
         print("3. View Subject-wise Analytics & Best/Worst Subjects")
         print("4. View Class Insights, High Performers & Rankings")
         print("5. View Subject Deviations Matrix (NumPy Broadcasting Demo)")
-        print("6. Run Complete Full Analytical Report")
-        print("7. Switch to Custom Student Data Entry")
-        print("8. Reset to Default Sample Dataset")
-        print("9. Exit Application")
+        print("6. View Student Performance Predictions (NumPy Linear Regression)")
+        print("7. Run Complete Full Analytical Report")
+        print("8. Switch to Custom Student Data Entry")
+        print("9. Reset to Default Sample Dataset")
+        print("10. Exit Application")
 
-        choice = input("\nEnter your choice (1-9): ").strip()
+        choice = input("\nEnter your choice (1-10): ").strip()
 
         if choice == "1":
             display_marks_table(students, subjects, marks_array)
@@ -233,22 +255,25 @@ def main() -> None:
         elif choice == "5":
             display_deviations_report(students, subjects, marks_array)
         elif choice == "6":
-            run_full_report(students, subjects, marks_array)
+            display_prediction_report(students, marks_array)
         elif choice == "7":
+            run_full_report(students, subjects, marks_array)
+        elif choice == "8":
             students, subjects, marks_list = get_custom_dataset()
             marks_array = convert_to_array(marks_list)
             print("\nCustom data loaded successfully!")
             run_full_report(students, subjects, marks_array)
-        elif choice == "8":
+        elif choice == "9":
             students, subjects, marks_list = get_sample_dataset()
             marks_array = convert_to_array(marks_list)
             print("\nReset back to default sample dataset.")
-        elif choice == "9":
+        elif choice == "10":
             print("\nThank you for using Student Performance Analyzer! Goodbye.")
             sys.exit(0)
         else:
-            print("Invalid choice! Please select an option from 1 to 9.")
+            print("Invalid choice! Please select an option from 1 to 10.")
 
 
 if __name__ == "__main__":
     main()
+

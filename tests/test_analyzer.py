@@ -33,6 +33,8 @@ from analyzer import (
     get_best_subject,
     get_worst_subject,
     calculate_subject_deviations,
+    predict_single_student,
+    predict_all_students,
 )
 
 
@@ -169,6 +171,30 @@ class TestStudentPerformanceAnalyzer(unittest.TestCase):
         # For Arun: Python (85 - 73.4 = +11.6)
         self.assertAlmostEqual(deviations[0, 0], 11.6)
 
+    def test_predict_single_student_improving(self) -> None:
+        """Tests linear regression prediction for an improving student trend."""
+        improving_marks = np.array([50.0, 60.0, 70.0, 80.0, 90.0])
+        pred = predict_single_student(improving_marks)
+        self.assertEqual(pred["trend"], "Improving")
+        self.assertAlmostEqual(pred["predicted_score"], 100.0)
+        self.assertEqual(pred["risk_level"], "Low Risk")
+
+    def test_predict_single_student_declining(self) -> None:
+        """Tests linear regression prediction for a declining student trend."""
+        declining_marks = np.array([90.0, 80.0, 70.0, 60.0, 50.0])
+        pred = predict_single_student(declining_marks)
+        self.assertEqual(pred["trend"], "Declining")
+        self.assertAlmostEqual(pred["predicted_score"], 40.0)
+        self.assertEqual(pred["risk_level"], "High Risk")
+
+    def test_predict_all_students(self) -> None:
+        """Tests predicting performance trends for full class dataset."""
+        preds = predict_all_students(self.students, self.marks_array)
+        self.assertEqual(len(preds), 5)
+        self.assertEqual(preds[0]["student"], "Arun")
+        self.assertIn(preds[0]["trend"], ["Improving", "Declining", "Stable"])
+        self.assertIn(preds[0]["risk_level"], ["Low Risk", "Moderate Risk", "High Risk"])
+
     def test_validate_mark_valid(self) -> None:
         """Tests mark validator with valid inputs."""
         self.assertEqual(validate_mark("0"), 0.0)
@@ -187,3 +213,4 @@ class TestStudentPerformanceAnalyzer(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+

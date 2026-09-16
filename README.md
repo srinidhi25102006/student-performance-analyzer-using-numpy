@@ -1,0 +1,212 @@
+# Student Performance Analyzer using NumPy
+
+A beginner-friendly, high-performance command-line application built with Python 3 and NumPy to analyze student academic performance. The application calculates individual totals, student averages, letter grades, pass/fail status, subject analytics, class statistics, student rankings, score deviations, and supports custom dataset entry via CLI.
+
+---
+
+## Table of Contents
+
+- [Project Overview](#project-overview)
+- [Features](#features)
+- [Technologies Used](#technologies-used)
+- [NumPy Concepts Demonstrated](#numpy-concepts-demonstrated)
+- [Project Structure](#project-structure)
+- [Installation Instructions](#installation-instructions)
+- [How to Run the Project](#how-to-run-the-project)
+- [How to Run Tests](#how-to-run-tests)
+- [Sample Output](#sample-output)
+- [Future Improvements](#future-improvements)
+- [Author](#author)
+- [License](#license)
+
+---
+
+## Project Overview
+
+The **Student Performance Analyzer** processes student marks matrices using pure **NumPy** operations without relying on heavier data analysis libraries like Pandas. It provides clean tabular reporting, subject-level insights, class performance indicators, and index-based student rankings while demonstrating fundamental NumPy concepts in an accessible, educational codebase.
+
+---
+
+## Features
+
+1. **Student Marks Matrix**: View all student marks across all subjects in a formatted ASCII table.
+2. **Total & Average Calculations**: Compute total and average marks for every student using row-wise aggregations (`axis=1`).
+3. **Automated Letter Grading**: Assign grades (`A+`, `A`, `B`, `C`, `D`, `F`) using vectorized grading rules based on average cutoffs.
+4. **Pass/Fail Evaluation**: Determine pass/fail status based on strict multi-subject rules (requires $\ge 40$ mark in all subjects).
+5. **Subject-Wise Analytics**: Calculate class averages, highest marks, and lowest marks per subject (`axis=0`).
+6. **Class Highlights**: Identify the top-performing student, lowest-performing student, class standard deviation, and best/worst performing subjects.
+7. **High Performers Filter**: Extract students achieving an average mark $\ge 75.0$ using boolean masking.
+8. **Student Rankings**: Rank all students from highest to lowest average score using index sorting (`np.argsort`).
+9. **Score Deviation Matrix**: Calculate score deviations relative to subject averages using 2D/1D **NumPy Broadcasting**.
+10. **Interactive CLI & Validation**: Switch between the pre-loaded 5x5 sample dataset and custom interactive user input with numeric validation ($0 - 100$).
+
+---
+
+## Technologies Used
+
+- **Python 3**: Core application logic and standard library (`sys`, `unittest`, `typing`).
+- **NumPy**: Matrix creation, axis aggregations, boolean masking, index sorting, and broadcasting.
+
+---
+
+## NumPy Concepts Demonstrated
+
+This project is tailored for learners mastering NumPy fundamentals:
+
+| NumPy Concept | Usage in Project | Function / Operation |
+| :--- | :--- | :--- |
+| **Array Creation** | Converting 2D Python list to `ndarray` | `np.array(data, dtype=np.float64)` |
+| **Metadata Inspection** | Reading array dimensions, size, & type | `arr.shape`, `arr.size`, `arr.ndim`, `arr.dtype` |
+| **Row-wise Aggregation (`axis=1`)** | Calculating total and average marks per student | `np.sum(arr, axis=1)`, `np.mean(arr, axis=1)` |
+| **Column-wise Aggregation (`axis=0`)** | Calculating class subject averages, max & min | `np.mean(arr, axis=0)`, `np.max(arr, axis=0)`, `np.min(arr, axis=0)` |
+| **Argmax / Argmin** | Locating top student and best/worst subjects | `np.argmax(averages)`, `np.argmin(subject_averages)` |
+| **Standard Deviation** | Measuring class score variance | `np.std(marks_array)` |
+| **Boolean Masking** | Filtering high performers ($\ge 75.0$) & subject pass marks ($\ge 40.0$) | `averages >= 75.0`, `np.all(marks >= 40.0, axis=1)` |
+| **Conditional Selection** | Assigning grades and Pass/Fail status | `np.select(conditions, choices)`, `np.where(mask, 'Pass', 'Fail')` |
+| **Index Sorting** | Ranking students from highest to lowest score | `np.argsort(-averages)` |
+| **Array Broadcasting** | Subtracting 1D subject averages array from 2D marks array | `marks_array - subject_averages` |
+
+---
+
+## Project Structure
+
+```
+student-performance-analyzer/
+├── src/
+│   ├── main.py           # CLI menu, table formatting, and application workflow
+│   ├── analyzer.py       # Modular NumPy computational functions with comments
+│   └── data.py           # Pre-loaded sample dataset, custom inputs, & validation
+├── tests/
+│   └── test_analyzer.py  # Unit test suite built with Python's unittest module
+├── README.md             # Project documentation and guide
+├── requirements.txt      # Project dependencies (numpy)
+├── .gitignore            # Git exclusion rules for Python
+└── LICENSE               # MIT License
+```
+
+---
+
+## Installation Instructions
+
+1. **Clone the Repository**:
+   ```bash
+   git clone https://github.com/YOUR_USERNAME/student-performance-analyzer.git
+   cd student-performance-analyzer
+   ```
+
+2. **Create a Virtual Environment (Optional but recommended)**:
+   ```bash
+   python -m venv venv
+   # On Windows:
+   venv\Scripts\activate
+   # On macOS/Linux:
+   source venv/bin/activate
+   ```
+
+3. **Install Dependencies**:
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+---
+
+## How to Run the Project
+
+Run the application main menu from the project root directory:
+
+```bash
+python src/main.py
+```
+
+### Interactive Menu Options
+
+```
+=== MAIN MENU ===
+1. View Marks Table & Array Metadata
+2. View Individual Student Performance (Totals, Averages, Grades, Status)
+3. View Subject-wise Analytics & Best/Worst Subjects
+4. View Class Insights, High Performers & Rankings
+5. View Subject Deviations Matrix (NumPy Broadcasting Demo)
+6. Run Complete Full Analytical Report
+7. Switch to Custom Student Data Entry
+8. Reset to Default Sample Dataset
+9. Exit Application
+```
+
+---
+
+## How to Run Tests
+
+Execute the unit test suite using Python's built-in `unittest` discover tool:
+
+```bash
+python -m unittest discover -s tests
+```
+
+Expected Test Output:
+```
+.................
+----------------------------------------------------------------------
+Ran 17 tests in 0.240s
+
+OK
+```
+
+---
+
+## Sample Output
+
+```
+================================================================================
+                  STUDENT MARKS MATRIX                  
+================================================================================
+Student      |       Python |  Mathematics |      English |      Science | Computer Networks
+--------------------------------------------------------------------------------------------
+Arun         |        85.00 |        78.00 |        92.00 |        88.00 |        95.00
+Divya        |        72.00 |        80.00 |        75.00 |        79.00 |        84.00
+Karthik      |        90.00 |        93.00 |        89.00 |        94.00 |        91.00
+Meena        |        65.00 |        70.00 |        68.00 |        72.00 |        75.00
+Rahul        |        55.00 |        60.00 |        58.00 |        62.00 |        57.00
+--------------------------------------------------------------------------------
+
+--- NumPy Array Metadata ---
+  Shape (Rows x Cols) : (5, 5)
+  Total Size (Count)  : 25
+  Dimensions (ndim)   : 2
+  Data Type (dtype)   : float64
+
+================================================================================
+              INDIVIDUAL STUDENT PERFORMANCE REPORT             
+================================================================================
+Rank   | Student      |    Total |  Average |  Grade | Status
+-------------------------------------------------------------
+2      | Arun         |   438.00 |    87.60 |      A |   Pass
+3      | Divya        |   390.00 |    78.00 |      B |   Pass
+1      | Karthik      |   457.00 |    91.40 |     A+ |   Pass
+4      | Meena        |   350.00 |    70.00 |      B |   Pass
+5      | Rahul        |   292.00 |    58.40 |      D |   Pass
+--------------------------------------------------------------------------------
+```
+
+---
+
+## Future Improvements
+
+- Add support for loading student datasets from CSV/JSON files without pandas.
+- Export generated analytics reports to formatted plain text or Markdown files.
+- Add weighted grade point average (GPA) calculations per subject credit hours.
+- Implement percentile-based student grouping using `np.percentile()`.
+
+---
+
+## Author
+
+**[Your Name Here]**
+- GitHub: [@yourusername](https://github.com/yourusername)
+- LinkedIn: [Your LinkedIn Profile](https://linkedin.com/in/yourprofile)
+
+---
+
+## License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.

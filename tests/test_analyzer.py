@@ -13,7 +13,8 @@ import numpy as np
 # Add src directory to path to enable clean imports when running tests
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
-from data import get_sample_dataset, validate_mark
+import tempfile
+from data import get_sample_dataset, validate_mark, load_dataset_from_csv
 from analyzer import (
     convert_to_array,
     get_array_properties,
@@ -210,7 +211,61 @@ class TestStudentPerformanceAnalyzer(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate_mark("abc")
 
+    def test_load_csv_success(self) -> None:
+        """Tests successful loading of sample students CSV dataset."""
+        csv_path = os.path.join(os.path.dirname(__file__), "../data/students.csv")
+        students, subjects, marks = load_dataset_from_csv(csv_path)
+        self.assertEqual(len(students), 10)
+        self.assertEqual(subjects, ["Math", "DBMS", "OS", "Python"])
+        self.assertEqual(students[0], "Aarav")
+        self.assertEqual(marks[0], [88.0, 92.0, 85.0, 90.0])
+
+    def test_load_csv_file_not_found(self) -> None:
+        """Tests error handling for non-existent CSV file path."""
+        with self.assertRaises(FileNotFoundError):
+            load_dataset_from_csv("non_existent_file_xyz.csv")
+
+    def test_load_csv_missing_columns(self) -> None:
+        """Tests error handling for CSV file missing required Name/Student_ID column."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as tf:
+            tf.write("Score1,Score2\n80,90\n")
+            temp_path = tf.name
+
+        try:
+            with self.assertRaises(ValueError):
+                load_dataset_from_csv(temp_path)
+        finally:
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+
+    def test_load_csv_invalid_marks(self) -> None:
+        """Tests error handling for CSV containing invalid out-of-bounds mark."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as tf:
+            tf.write("Student_ID,Name,Math\n101,Aarav,150\n")
+            temp_path = tf.name
+
+        try:
+            with self.assertRaises(ValueError):
+                load_dataset_from_csv(temp_path)
+        finally:
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+
+    def test_load_csv_missing_values(self) -> None:
+        """Tests error handling for CSV containing missing mark values."""
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.csv', delete=False) as tf:
+            tf.write("Student_ID,Name,Math,Python\n101,Aarav,85,\n")
+            temp_path = tf.name
+
+        try:
+            with self.assertRaises(ValueError):
+                load_dataset_from_csv(temp_path)
+        finally:
+            if os.path.exists(temp_path):
+                os.remove(temp_path)
+
 
 if __name__ == "__main__":
     unittest.main()
+
 

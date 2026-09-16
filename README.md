@@ -39,13 +39,39 @@ The **Student Performance Analyzer** processes student marks matrices using pure
 8. **Student Rankings**: Rank all students from highest to lowest average score using index sorting (`np.argsort`).
 9. **Score Deviation Matrix**: Calculate score deviations relative to subject averages using 2D/1D **NumPy Broadcasting**.
 10. **Performance Prediction**: Predict next assessment scores, detect score trajectory (`Improving`, `Declining`, `Stable`), and classify academic risk level (`Low Risk`, `Moderate Risk`, `High Risk`) using **NumPy Linear Regression**.
-11. **Interactive CLI & Validation**: Switch between the pre-loaded 5x5 sample dataset and custom interactive user input with numeric validation (0 - 100).
+11. **CSV Dataset Support**: Load student performance records dynamically from `.csv` files with automated column detection and validation for missing values, invalid ranges, or header errors.
+12. **Interactive CLI & Validation**: Switch between pre-loaded 5x5 sample dataset, custom interactive user entry, and external CSV files with validation ($0 - 100$).
+
+---
+
+## CSV Dataset Specifications
+
+The application includes a sample dataset at [`data/students.csv`](file:///d:/student%20performance%20analyzer/data/students.csv).
+
+### Required CSV Format
+
+```csv
+Student_ID,Name,Math,DBMS,OS,Python
+101,Aarav,88,92,85,90
+102,Bhavna,76,81,79,84
+103,Chetan,95,89,94,92
+104,Deepa,62,68,65,70
+105,Esha,45,52,50,48
+106,Farhan,82,78,85,80
+107,Gita,91,95,88,93
+108,Hari,55,60,58,62
+109,Isha,70,75,72,74
+110,Jatin,89,84,90,87
+```
+
+- **Identifier Columns**: Must contain `Name` or `Student_ID` (or both).
+- **Subject Columns**: All additional numeric columns are automatically detected as subject marks.
 
 ---
 
 ## Technologies Used
 
-- **Python 3**: Core application logic and standard library (`sys`, `unittest`, `typing`).
+- **Python 3**: Core application logic, `csv` standard library parser, and `unittest`.
 - **NumPy**: Matrix creation, axis aggregations, boolean masking, index sorting, broadcasting, and polynomial fitting.
 
 ---
@@ -74,10 +100,12 @@ This project is tailored for learners mastering NumPy fundamentals:
 
 ```
 student-performance-analyzer/
+├── data/
+│   └── students.csv      # Sample 10-student CSV performance dataset
 ├── src/
 │   ├── main.py           # CLI menu, table formatting, and application workflow
 │   ├── analyzer.py       # Modular NumPy computational functions with comments
-│   └── data.py           # Pre-loaded sample dataset, custom inputs, & validation
+│   └── data.py           # Pre-loaded sample dataset, CSV parser, & validation
 ├── tests/
 │   └── test_analyzer.py  # Unit test suite built with Python's unittest module
 ├── README.md             # Project documentation and guide
@@ -129,11 +157,20 @@ python src/main.py
 3. View Subject-wise Analytics & Best/Worst Subjects
 4. View Class Insights, High Performers & Rankings
 5. View Subject Deviations Matrix (NumPy Broadcasting Demo)
-6. Run Complete Full Analytical Report
-7. Switch to Custom Student Data Entry
-8. Reset to Default Sample Dataset
-9. Exit Application
+6. View Student Performance Predictions (NumPy Linear Regression)
+7. Run Complete Full Analytical Report
+8. Load & Analyze Student Data from CSV File
+9. Switch to Custom Interactive Student Data Entry
+10. Reset to Default Sample Dataset
+11. Exit Application
 ```
+
+### Running CSV Analysis via CLI
+
+To load and analyze the sample CSV dataset:
+1. Select Option `8` in the main menu.
+2. Press `Enter` to use the default path (`data/students.csv`) or input a path to your custom CSV file.
+3. The application will validate the file, convert data to NumPy arrays, and present the complete analytical report!
 
 ---
 
@@ -147,9 +184,9 @@ python -m unittest discover -s tests
 
 Expected Test Output:
 ```
-.................
+.........................
 ----------------------------------------------------------------------
-Ran 17 tests in 0.240s
+Ran 25 tests in 0.267s
 
 OK
 ```

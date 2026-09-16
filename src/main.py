@@ -9,7 +9,7 @@ import sys
 from typing import List
 import numpy as np
 
-from data import get_sample_dataset, get_custom_dataset
+from data import get_sample_dataset, get_custom_dataset, get_csv_dataset
 from analyzer import (
     convert_to_array,
     get_array_properties,
@@ -237,11 +237,12 @@ def main() -> None:
         print("5. View Subject Deviations Matrix (NumPy Broadcasting Demo)")
         print("6. View Student Performance Predictions (NumPy Linear Regression)")
         print("7. Run Complete Full Analytical Report")
-        print("8. Switch to Custom Student Data Entry")
-        print("9. Reset to Default Sample Dataset")
-        print("10. Exit Application")
+        print("8. Load & Analyze Student Data from CSV File")
+        print("9. Switch to Custom Interactive Student Data Entry")
+        print("10. Reset to Default Sample Dataset")
+        print("11. Exit Application")
 
-        choice = input("\nEnter your choice (1-10): ").strip()
+        choice = input("\nEnter your choice (1-11): ").strip()
 
         if choice == "1":
             display_marks_table(students, subjects, marks_array)
@@ -259,21 +260,26 @@ def main() -> None:
         elif choice == "7":
             run_full_report(students, subjects, marks_array)
         elif choice == "8":
+            students, subjects, marks_list = get_csv_dataset()
+            marks_array = convert_to_array(marks_list)
+            run_full_report(students, subjects, marks_array)
+        elif choice == "9":
             students, subjects, marks_list = get_custom_dataset()
             marks_array = convert_to_array(marks_list)
             print("\nCustom data loaded successfully!")
             run_full_report(students, subjects, marks_array)
-        elif choice == "9":
+        elif choice == "10":
             students, subjects, marks_list = get_sample_dataset()
             marks_array = convert_to_array(marks_list)
             print("\nReset back to default sample dataset.")
-        elif choice == "10":
+        elif choice == "11":
             print("\nThank you for using Student Performance Analyzer! Goodbye.")
             sys.exit(0)
         else:
-            print("Invalid choice! Please select an option from 1 to 10.")
+            print("Invalid choice! Please select an option from 1 to 11.")
 
 
 if __name__ == "__main__":
     main()
+
 

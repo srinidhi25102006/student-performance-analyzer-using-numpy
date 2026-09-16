@@ -30,6 +30,8 @@ from analyzer import (
     get_worst_subject,
     calculate_subject_deviations,
     predict_all_students,
+    get_all_students_subject_breakdown,
+    get_overall_subject_analytics,
 )
 
 
@@ -128,6 +130,44 @@ def display_subject_report(
     print_divider("-")
 
 
+def display_detailed_subject_analysis(
+    students: List[str],
+    subjects: List[str],
+    marks_array: np.ndarray
+) -> None:
+    """Displays detailed per-student subject breakdown (strongest/weakest) and class overall subject averages."""
+    breakdowns = get_all_students_subject_breakdown(students, subjects, marks_array)
+    overall_analytics = get_overall_subject_analytics(subjects, marks_array)
+
+    print_divider("=")
+    print("        DETAILED SUBJECT-WISE PERFORMANCE ANALYSIS & TIE REPORT ")
+    print_divider("=")
+
+    for b in breakdowns:
+        print(f"\nStudent: {b['student']}")
+        for subj, mark in b["marks"].items():
+            print(f"  {subj:<18}: {mark:.2f}")
+        strong_label = f"{b['strongest']} (Tied)" if b["is_strongest_tied"] else b["strongest"]
+        weak_label = f"{b['weakest']} (Tied)" if b["is_weakest_tied"] else b["weakest"]
+        print(f"  Strongest Subject : {strong_label}")
+        print(f"  Weakest Subject   : {weak_label}")
+
+    print("\n" + "=" * 80)
+    print("                     OVERALL SUBJECT PERFORMANCE                         ")
+    print_divider("=")
+
+    for subj, avg in overall_analytics["subject_averages"].items():
+        print(f"  {subj:<20}: {avg:.2f}")
+
+    print_divider("-")
+    high_label = f"{overall_analytics['highest_subjects']} (Tied)" if overall_analytics["is_highest_tied"] else overall_analytics['highest_subjects']
+    low_label = f"{overall_analytics['lowest_subjects']} (Tied)" if overall_analytics["is_lowest_tied"] else overall_analytics['lowest_subjects']
+
+    print(f" Highest Performing Subject : {high_label} (Avg: {overall_analytics['highest_avg']:.2f})")
+    print(f" Lowest Performing Subject  : {low_label} (Avg: {overall_analytics['lowest_avg']:.2f})")
+    print_divider("-")
+
+
 def display_class_insights(
     students: List[str],
     subjects: List[str],
@@ -213,6 +253,7 @@ def run_full_report(students: List[str], subjects: List[str], marks_array: np.nd
     display_array_metadata(marks_array)
     display_student_report(students, subjects, marks_array)
     display_subject_report(subjects, marks_array)
+    display_detailed_subject_analysis(students, subjects, marks_array)
     display_class_insights(students, subjects, marks_array)
     display_deviations_report(students, subjects, marks_array)
     display_prediction_report(students, marks_array)
@@ -233,16 +274,17 @@ def main() -> None:
         print("1. View Marks Table & Array Metadata")
         print("2. View Individual Student Performance (Totals, Averages, Grades, Status)")
         print("3. View Subject-wise Analytics & Best/Worst Subjects")
-        print("4. View Class Insights, High Performers & Rankings")
-        print("5. View Subject Deviations Matrix (NumPy Broadcasting Demo)")
-        print("6. View Student Performance Predictions (NumPy Linear Regression)")
-        print("7. Run Complete Full Analytical Report")
-        print("8. Load & Analyze Student Data from CSV File")
-        print("9. Switch to Custom Interactive Student Data Entry")
-        print("10. Reset to Default Sample Dataset")
-        print("11. Exit Application")
+        print("4. View Detailed Per-Student Subject Analysis (Strongest/Weakest & Ties)")
+        print("5. View Class Insights, High Performers & Rankings")
+        print("6. View Subject Deviations Matrix (NumPy Broadcasting Demo)")
+        print("7. View Student Performance Predictions (NumPy Linear Regression)")
+        print("8. Run Complete Full Analytical Report")
+        print("9. Load & Analyze Student Data from CSV File")
+        print("10. Switch to Custom Interactive Student Data Entry")
+        print("11. Reset to Default Sample Dataset")
+        print("12. Exit Application")
 
-        choice = input("\nEnter your choice (1-11): ").strip()
+        choice = input("\nEnter your choice (1-12): ").strip()
 
         if choice == "1":
             display_marks_table(students, subjects, marks_array)
@@ -252,34 +294,37 @@ def main() -> None:
         elif choice == "3":
             display_subject_report(subjects, marks_array)
         elif choice == "4":
-            display_class_insights(students, subjects, marks_array)
+            display_detailed_subject_analysis(students, subjects, marks_array)
         elif choice == "5":
-            display_deviations_report(students, subjects, marks_array)
+            display_class_insights(students, subjects, marks_array)
         elif choice == "6":
-            display_prediction_report(students, marks_array)
+            display_deviations_report(students, subjects, marks_array)
         elif choice == "7":
-            run_full_report(students, subjects, marks_array)
+            display_prediction_report(students, marks_array)
         elif choice == "8":
+            run_full_report(students, subjects, marks_array)
+        elif choice == "9":
             students, subjects, marks_list = get_csv_dataset()
             marks_array = convert_to_array(marks_list)
             run_full_report(students, subjects, marks_array)
-        elif choice == "9":
+        elif choice == "10":
             students, subjects, marks_list = get_custom_dataset()
             marks_array = convert_to_array(marks_list)
             print("\nCustom data loaded successfully!")
             run_full_report(students, subjects, marks_array)
-        elif choice == "10":
+        elif choice == "11":
             students, subjects, marks_list = get_sample_dataset()
             marks_array = convert_to_array(marks_list)
             print("\nReset back to default sample dataset.")
-        elif choice == "11":
+        elif choice == "12":
             print("\nThank you for using Student Performance Analyzer! Goodbye.")
             sys.exit(0)
         else:
-            print("Invalid choice! Please select an option from 1 to 11.")
+            print("Invalid choice! Please select an option from 1 to 12.")
 
 
 if __name__ == "__main__":
     main()
+
 
 

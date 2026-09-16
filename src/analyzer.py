@@ -309,3 +309,84 @@ def predict_all_students(students: List[str], marks_array: np.ndarray) -> List[D
         predictions.append(pred_dict)
     return predictions
 
+
+def get_student_subject_breakdown(
+    subjects: List[str],
+    row_marks: np.ndarray
+) -> Dict[str, Any]:
+    """
+    CONCEPT: np.max(), np.min(), np.where(), and tie handling.
+    Identifies a student's strongest and weakest subject(s) with graceful tie handling.
+    """
+    max_mark = float(np.max(row_marks))
+    min_mark = float(np.min(row_marks))
+
+    # np.where returns tuple of array indices matching condition
+    strong_indices = np.where(row_marks == max_mark)[0]
+    weak_indices = np.where(row_marks == min_mark)[0]
+
+    strongest_subjects = [subjects[i] for i in strong_indices]
+    weakest_subjects = [subjects[i] for i in weak_indices]
+
+    # Map subject names to individual mark values
+    subject_marks_dict = {subjects[i]: float(row_marks[i]) for i in range(len(subjects))}
+
+    return {
+        "marks": subject_marks_dict,
+        "max_mark": max_mark,
+        "min_mark": min_mark,
+        "strongest": ", ".join(strongest_subjects),
+        "weakest": ", ".join(weakest_subjects),
+        "is_strongest_tied": len(strongest_subjects) > 1,
+        "is_weakest_tied": len(weakest_subjects) > 1,
+    }
+
+
+def get_all_students_subject_breakdown(
+    students: List[str],
+    subjects: List[str],
+    marks_array: np.ndarray
+) -> List[Dict[str, Any]]:
+    """
+    Computes subject breakdown analytics for all students in the class.
+    """
+    breakdowns = []
+    for idx, student in enumerate(students):
+        row_marks = marks_array[idx]
+        b_dict = get_student_subject_breakdown(subjects, row_marks)
+        b_dict["student"] = student
+        breakdowns.append(b_dict)
+    return breakdowns
+
+
+def get_overall_subject_analytics(
+    subjects: List[str],
+    marks_array: np.ndarray
+) -> Dict[str, Any]:
+    """
+    CONCEPT: Column-wise averages np.mean(axis=0), np.max(), np.min(), np.where(), tie handling.
+    Calculates overall subject performance across all students and identifies highest/lowest performing subjects.
+    """
+    subj_averages = np.mean(marks_array, axis=0)
+    max_avg = float(np.max(subj_averages))
+    min_avg = float(np.min(subj_averages))
+
+    highest_indices = np.where(subj_averages == max_avg)[0]
+    lowest_indices = np.where(subj_averages == min_avg)[0]
+
+    highest_subjects = [subjects[i] for i in highest_indices]
+    lowest_subjects = [subjects[i] for i in lowest_indices]
+
+    subject_avg_dict = {subjects[i]: float(subj_averages[i]) for i in range(len(subjects))}
+
+    return {
+        "subject_averages": subject_avg_dict,
+        "highest_avg": max_avg,
+        "lowest_avg": min_avg,
+        "highest_subjects": ", ".join(highest_subjects),
+        "lowest_subjects": ", ".join(lowest_subjects),
+        "is_highest_tied": len(highest_subjects) > 1,
+        "is_lowest_tied": len(lowest_subjects) > 1,
+    }
+
+

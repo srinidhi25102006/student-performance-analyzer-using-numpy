@@ -36,6 +36,9 @@ from analyzer import (
     calculate_subject_deviations,
     predict_single_student,
     predict_all_students,
+    get_student_subject_breakdown,
+    get_all_students_subject_breakdown,
+    get_overall_subject_analytics,
 )
 
 
@@ -196,6 +199,48 @@ class TestStudentPerformanceAnalyzer(unittest.TestCase):
         self.assertIn(preds[0]["trend"], ["Improving", "Declining", "Stable"])
         self.assertIn(preds[0]["risk_level"], ["Low Risk", "Moderate Risk", "High Risk"])
 
+    def test_student_subject_breakdown_unique(self) -> None:
+        """Tests strongest and weakest subject identification for a single student with unique max/min."""
+        subjects = ["Math", "DBMS", "OS", "Python"]
+        marks = np.array([85.0, 72.0, 91.0, 88.0])
+        res = get_student_subject_breakdown(subjects, marks)
+        self.assertEqual(res["strongest"], "OS")
+        self.assertEqual(res["weakest"], "DBMS")
+        self.assertFalse(res["is_strongest_tied"])
+        self.assertFalse(res["is_weakest_tied"])
+
+    def test_student_subject_breakdown_tied(self) -> None:
+        """Tests strongest and weakest subject identification when subjects have tied scores."""
+        subjects = ["Math", "DBMS", "OS", "Python"]
+        tied_marks = np.array([90.0, 70.0, 90.0, 70.0])
+        res = get_student_subject_breakdown(subjects, tied_marks)
+        self.assertEqual(res["strongest"], "Math, OS")
+        self.assertEqual(res["weakest"], "DBMS, Python")
+        self.assertTrue(res["is_strongest_tied"])
+        self.assertTrue(res["is_weakest_tied"])
+
+    def test_overall_subject_analytics_tied(self) -> None:
+        """Tests class overall subject averages and tied highest/lowest performing subjects."""
+        subjects = ["Math", "DBMS", "OS", "Python"]
+        # Matrix where Math & Python have same average (80.0), DBMS & OS have same average (60.0)
+        matrix = np.array([
+            [80.0, 60.0, 60.0, 80.0],
+            [80.0, 60.0, 60.0, 80.0]
+        ])
+        res = get_overall_subject_analytics(subjects, matrix)
+        self.assertEqual(res["highest_subjects"], "Math, Python")
+        self.assertEqual(res["lowest_subjects"], "DBMS, OS")
+        self.assertTrue(res["is_highest_tied"])
+        self.assertTrue(res["is_lowest_tied"])
+
+    def test_all_students_subject_breakdown(self) -> None:
+        """Tests subject breakdown for multiple students."""
+        breakdowns = get_all_students_subject_breakdown(self.students, self.subjects, self.marks_array)
+        self.assertEqual(len(breakdowns), 5)
+        self.assertEqual(breakdowns[0]["student"], "Arun")
+        self.assertEqual(breakdowns[0]["strongest"], "Computer Networks")
+        self.assertEqual(breakdowns[0]["weakest"], "Mathematics")
+
     def test_validate_mark_valid(self) -> None:
         """Tests mark validator with valid inputs."""
         self.assertEqual(validate_mark("0"), 0.0)
@@ -267,5 +312,6 @@ class TestStudentPerformanceAnalyzer(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
 
 

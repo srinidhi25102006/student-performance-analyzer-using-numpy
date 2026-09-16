@@ -39,8 +39,9 @@ The **Student Performance Analyzer** processes student marks matrices using pure
 8. **Student Rankings**: Rank all students from highest to lowest average score using index sorting (`np.argsort`).
 9. **Score Deviation Matrix**: Calculate score deviations relative to subject averages using 2D/1D **NumPy Broadcasting**.
 10. **Performance Prediction**: Predict next assessment scores, detect score trajectory (`Improving`, `Declining`, `Stable`), and classify academic risk level (`Low Risk`, `Moderate Risk`, `High Risk`) using **NumPy Linear Regression**.
-11. **CSV Dataset Support**: Load student performance records dynamically from `.csv` files with automated column detection and validation for missing values, invalid ranges, or header errors.
-12. **Interactive CLI & Validation**: Switch between pre-loaded 5x5 sample dataset, custom interactive user entry, and external CSV files with validation ($0 - 100$).
+11. **Subject-wise Performance Analysis**: Analyze each student's marks per subject, identify strongest/weakest subjects, calculate overall subject averages, and identify highest/lowest performing subjects with **graceful tie-handling**.
+12. **CSV Dataset Support**: Load student performance records dynamically from `.csv` files with automated column detection and validation for missing values, invalid ranges, or header errors.
+13. **Interactive CLI & Validation**: Switch between pre-loaded 5x5 sample dataset, custom interactive user entry, and external CSV files with validation ($0 - 100$).
 
 ---
 
@@ -72,7 +73,7 @@ Student_ID,Name,Math,DBMS,OS,Python
 ## Technologies Used
 
 - **Python 3**: Core application logic, `csv` standard library parser, and `unittest`.
-- **NumPy**: Matrix creation, axis aggregations, boolean masking, index sorting, broadcasting, and polynomial fitting.
+- **NumPy**: Matrix creation, axis aggregations, boolean masking, index sorting, broadcasting, polynomial fitting, and `np.where()` tie resolution.
 
 ---
 
@@ -88,7 +89,7 @@ This project is tailored for learners mastering NumPy fundamentals:
 | **Column-wise Aggregation (`axis=0`)** | Calculating class subject averages, max & min | `np.mean(arr, axis=0)`, `np.max(arr, axis=0)`, `np.min(arr, axis=0)` |
 | **Argmax / Argmin** | Locating top student and best/worst subjects | `np.argmax(averages)`, `np.argmin(subject_averages)` |
 | **Standard Deviation** | Measuring class score variance | `np.std(marks_array)` |
-| **Boolean Masking** | Filtering high performers (>= 75.0) & subject pass marks (>= 40.0) | `averages >= 75.0`, `np.all(marks >= 40.0, axis=1)` |
+| **Boolean Masking & Ties** | Filtering high performers & resolving tied strongest/weakest subjects | `averages >= 75.0`, `np.where(row_marks == max_mark)` |
 | **Conditional Selection** | Assigning grades and Pass/Fail status | `np.select(conditions, choices)`, `np.where(mask, 'Pass', 'Fail')` |
 | **Index Sorting** | Ranking students from highest to lowest score | `np.argsort(-averages)` |
 | **Array Broadcasting** | Subtracting 1D subject averages array from 2D marks array | `marks_array - subject_averages` |
@@ -155,22 +156,20 @@ python src/main.py
 1. View Marks Table & Array Metadata
 2. View Individual Student Performance (Totals, Averages, Grades, Status)
 3. View Subject-wise Analytics & Best/Worst Subjects
-4. View Class Insights, High Performers & Rankings
-5. View Subject Deviations Matrix (NumPy Broadcasting Demo)
-6. View Student Performance Predictions (NumPy Linear Regression)
-7. Run Complete Full Analytical Report
-8. Load & Analyze Student Data from CSV File
-9. Switch to Custom Interactive Student Data Entry
-10. Reset to Default Sample Dataset
-11. Exit Application
+4. View Detailed Per-Student Subject Analysis (Strongest/Weakest & Ties)
+5. View Class Insights, High Performers & Rankings
+6. View Subject Deviations Matrix (NumPy Broadcasting Demo)
+7. View Student Performance Predictions (NumPy Linear Regression)
+8. Run Complete Full Analytical Report
+9. Load & Analyze Student Data from CSV File
+10. Switch to Custom Interactive Student Data Entry
+11. Reset to Default Sample Dataset
+12. Exit Application
 ```
 
-### Running CSV Analysis via CLI
+### Running Detailed Subject Analysis via CLI
 
-To load and analyze the sample CSV dataset:
-1. Select Option `8` in the main menu.
-2. Press `Enter` to use the default path (`data/students.csv`) or input a path to your custom CSV file.
-3. The application will validate the file, convert data to NumPy arrays, and present the complete analytical report!
+Select Option `4` in the main menu to display each student's subject breakdown, strongest subject(s), weakest subject(s), and overall class subject averages.
 
 ---
 
@@ -184,9 +183,9 @@ python -m unittest discover -s tests
 
 Expected Test Output:
 ```
-.........................
+.............................
 ----------------------------------------------------------------------
-Ran 25 tests in 0.267s
+Ran 29 tests in 0.243s
 
 OK
 ```

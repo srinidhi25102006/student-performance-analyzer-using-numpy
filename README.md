@@ -42,7 +42,8 @@ The **Student Performance Analyzer** processes student marks matrices using pure
 11. **Student Ranking System**: Compute overall averages, rank students from highest to lowest using **standard competition tie-ranking** (e.g. 1, 1, 3), and highlight top and lowest performing students.
 12. **Subject-wise Performance Analysis**: Analyze each student's marks per subject, identify strongest/weakest subjects, calculate overall subject averages, and identify highest/lowest performing subjects with **graceful tie-handling**.
 13. **CSV Dataset Support**: Load student performance records dynamically from `.csv` files with automated column detection and validation for missing values, invalid ranges, or header errors.
-14. **Interactive CLI & Validation**: Switch between pre-loaded 5x5 sample dataset, custom interactive user entry, and external CSV files with validation ($0 - 100$).
+14. **At-Risk Student Detection**: Automatically identify students needing academic support based on overall average risk thresholds (`High Risk` < 40, `Moderate Risk` 40 to < 50, `Low Risk` >= 50) and identify individual subject score weaknesses (< 40 mark) using vectorized boolean masking.
+15. **Interactive CLI & Validation**: Switch between pre-loaded 5x5 sample dataset, custom interactive user entry, and external CSV files with validation ($0 - 100$).
 
 ---
 
@@ -90,8 +91,8 @@ This project is tailored for learners mastering NumPy fundamentals:
 | **Column-wise Aggregation (`axis=0`)** | Calculating class subject averages, max & min | `np.mean(arr, axis=0)`, `np.max(arr, axis=0)`, `np.min(arr, axis=0)` |
 | **Argmax / Argmin** | Locating top student and best/worst subjects | `np.argmax(averages)`, `np.argmin(subject_averages)` |
 | **Standard Deviation** | Measuring class score variance | `np.std(marks_array)` |
-| **Boolean Masking & Ties** | Filtering high performers & resolving tied strongest/weakest subjects | `averages >= 75.0`, `np.where(row_marks == max_mark)` |
-| **Conditional Selection** | Assigning grades and Pass/Fail status | `np.select(conditions, choices)`, `np.where(mask, 'Pass', 'Fail')` |
+| **Boolean Masking & Ties** | Filtering high performers, detecting weak subjects (<40), & resolving tied strongest/weakest subjects | `averages >= 75.0`, `row_marks < 40.0`, `np.where(row_marks == max_mark)` |
+| **Conditional Selection & Risk Detection** | Assigning grades, Pass/Fail status, & At-Risk classification thresholds | `np.select(conditions, choices)`, `np.where(mask, 'Pass', 'Fail')` |
 | **Index Sorting & Ranking** | Ranking students from highest to lowest score with competition tie resolution | `np.argsort(-averages)`, `compute_student_rankings()` |
 | **Array Broadcasting** | Subtracting 1D subject averages array from 2D marks array | `marks_array - subject_averages` |
 | **Linear Regression & Clipping** | Fitting trend slope to predict next assessment score | `np.polyfit(x, y, 1)`, `np.clip(val, 0, 100)` |
@@ -159,34 +160,44 @@ python src/main.py
 3. View Subject-wise Analytics & Best/Worst Subjects
 4. View Detailed Per-Student Subject Analysis (Strongest/Weakest & Ties)
 5. View Student Ranking Leaderboard (Competition Ranking & Ties)
-6. View Class Insights, High Performers & Rankings
-7. View Subject Deviations Matrix (NumPy Broadcasting Demo)
-8. View Student Performance Predictions (NumPy Linear Regression)
-9. Run Complete Full Analytical Report
-10. Load & Analyze Student Data from CSV File
-11. Switch to Custom Interactive Student Data Entry
-12. Reset to Default Sample Dataset
-13. Exit Application
+6. View At-Risk Student Detection Report (Thresholds & Weak Subjects)
+7. View Class Insights, High Performers & Rankings
+8. View Subject Deviations Matrix (NumPy Broadcasting Demo)
+9. View Student Performance Predictions (NumPy Linear Regression)
+10. Run Complete Full Analytical Report
+11. Load & Analyze Student Data from CSV File
+12. Switch to Custom Interactive Student Data Entry
+13. Reset to Default Sample Dataset
+14. Exit Application
 ```
 
-### Running Student Ranking Leaderboard via CLI
+### Running At-Risk Student Detection via CLI
 
-Select Option `5` in the main menu to display the dedicated **Student Ranking Leaderboard**:
+Select Option `6` in the main menu to display the dedicated **At-Risk Students Detection Report**:
 
 ```text
 ================================================================================
-                    STUDENT RANKING LEADERBOARD                 
+                      AT-RISK STUDENTS DETECTION REPORT         
 ================================================================================
-Rank   | Student          |  Overall Average
-------------------------------------------------
-1      | Chetan           |            92.50
-2      | Gita             |            91.75
-3      | Aarav            |            88.75
-4      | Jatin            |            87.50
-------------------------------------------------
- Top Performing Student(s) : Chetan - 92.50
- Lowest Performing Student(s): Esha - 48.75
-------------------------------------------------
+Name: Arun
+Overall Average: 87.6
+Weak Subjects: None
+Risk Status: LOW RISK
+
+Name: Divya
+Overall Average: 78.0
+Weak Subjects: None
+Risk Status: LOW RISK
+
+...
+--------------------------------------------------------------------------------
+SUMMARY:
+
+Total Students: 5
+High Risk: 0
+Moderate Risk: 0
+Low Risk: 5
+--------------------------------------------------------------------------------
 ```
 
 ---
@@ -201,9 +212,9 @@ python -m unittest discover -s tests
 
 Expected Test Output:
 ```
-.................................
+.......................................
 ----------------------------------------------------------------------
-Ran 33 tests in 0.159s
+Ran 39 tests in 0.250s
 
 OK
 ```

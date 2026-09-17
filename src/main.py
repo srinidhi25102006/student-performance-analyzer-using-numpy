@@ -33,6 +33,7 @@ from analyzer import (
     get_all_students_subject_breakdown,
     get_overall_subject_analytics,
     compute_student_rankings,
+    detect_all_at_risk_students,
 )
 
 
@@ -200,6 +201,37 @@ def display_ranking_leaderboard(students: List[str], marks_array: np.ndarray) ->
     print_divider("-")
 
 
+def display_at_risk_report(
+    students: List[str],
+    subjects: List[str],
+    marks_array: np.ndarray
+) -> None:
+    """Displays At-Risk Student Detection Report and Summary statistics."""
+    risk_data = detect_all_at_risk_students(students, subjects, marks_array)
+
+    print_divider("=")
+    print("                      AT-RISK STUDENTS DETECTION REPORT         ")
+    print_divider("=")
+
+    if not risk_data["students_risk"]:
+        print("No student data available for risk detection.")
+    else:
+        for item in risk_data["students_risk"]:
+            print(f"Name: {item['student']}")
+            print(f"Overall Average: {item['average']:.1f}")
+            print(f"Weak Subjects: {item['weak_subjects']}")
+            print(f"Risk Status: {item['risk_status']}\n")
+
+    print_divider("-")
+    summary = risk_data["summary"]
+    print("SUMMARY:\n")
+    print(f"Total Students: {summary['total']}")
+    print(f"High Risk: {summary['high_risk']}")
+    print(f"Moderate Risk: {summary['moderate_risk']}")
+    print(f"Low Risk: {summary['low_risk']}")
+    print_divider("-")
+
+
 def display_class_insights(
     students: List[str],
     subjects: List[str],
@@ -287,6 +319,7 @@ def run_full_report(students: List[str], subjects: List[str], marks_array: np.nd
     display_subject_report(subjects, marks_array)
     display_detailed_subject_analysis(students, subjects, marks_array)
     display_ranking_leaderboard(students, marks_array)
+    display_at_risk_report(students, subjects, marks_array)
     display_class_insights(students, subjects, marks_array)
     display_deviations_report(students, subjects, marks_array)
     display_prediction_report(students, marks_array)
@@ -309,16 +342,17 @@ def main() -> None:
         print("3. View Subject-wise Analytics & Best/Worst Subjects")
         print("4. View Detailed Per-Student Subject Analysis (Strongest/Weakest & Ties)")
         print("5. View Student Ranking Leaderboard (Competition Ranking & Ties)")
-        print("6. View Class Insights, High Performers & Rankings")
-        print("7. View Subject Deviations Matrix (NumPy Broadcasting Demo)")
-        print("8. View Student Performance Predictions (NumPy Linear Regression)")
-        print("9. Run Complete Full Analytical Report")
-        print("10. Load & Analyze Student Data from CSV File")
-        print("11. Switch to Custom Interactive Student Data Entry")
-        print("12. Reset to Default Sample Dataset")
-        print("13. Exit Application")
+        print("6. View At-Risk Student Detection Report (Thresholds & Weak Subjects)")
+        print("7. View Class Insights, High Performers & Rankings")
+        print("8. View Subject Deviations Matrix (NumPy Broadcasting Demo)")
+        print("9. View Student Performance Predictions (NumPy Linear Regression)")
+        print("10. Run Complete Full Analytical Report")
+        print("11. Load & Analyze Student Data from CSV File")
+        print("12. Switch to Custom Interactive Student Data Entry")
+        print("13. Reset to Default Sample Dataset")
+        print("14. Exit Application")
 
-        choice = input("\nEnter your choice (1-13): ").strip()
+        choice = input("\nEnter your choice (1-14): ").strip()
 
         if choice == "1":
             display_marks_table(students, subjects, marks_array)
@@ -332,35 +366,38 @@ def main() -> None:
         elif choice == "5":
             display_ranking_leaderboard(students, marks_array)
         elif choice == "6":
-            display_class_insights(students, subjects, marks_array)
+            display_at_risk_report(students, subjects, marks_array)
         elif choice == "7":
-            display_deviations_report(students, subjects, marks_array)
+            display_class_insights(students, subjects, marks_array)
         elif choice == "8":
-            display_prediction_report(students, marks_array)
+            display_deviations_report(students, subjects, marks_array)
         elif choice == "9":
-            run_full_report(students, subjects, marks_array)
+            display_prediction_report(students, marks_array)
         elif choice == "10":
+            run_full_report(students, subjects, marks_array)
+        elif choice == "11":
             students, subjects, marks_list = get_csv_dataset()
             marks_array = convert_to_array(marks_list)
             run_full_report(students, subjects, marks_array)
-        elif choice == "11":
+        elif choice == "12":
             students, subjects, marks_list = get_custom_dataset()
             marks_array = convert_to_array(marks_list)
             print("\nCustom data loaded successfully!")
             run_full_report(students, subjects, marks_array)
-        elif choice == "12":
+        elif choice == "13":
             students, subjects, marks_list = get_sample_dataset()
             marks_array = convert_to_array(marks_list)
             print("\nReset back to default sample dataset.")
-        elif choice == "13":
+        elif choice == "14":
             print("\nThank you for using Student Performance Analyzer! Goodbye.")
             sys.exit(0)
         else:
-            print("Invalid choice! Please select an option from 1 to 13.")
+            print("Invalid choice! Please select an option from 1 to 14.")
 
 
 if __name__ == "__main__":
     main()
+
 
 
 

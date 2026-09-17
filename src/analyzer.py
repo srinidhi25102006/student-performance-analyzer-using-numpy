@@ -427,4 +427,96 @@ def compute_student_rankings(
     return rankings
 
 
+def detect_student_risk(
+    row_marks: np.ndarray,
+    subjects: List[str],
+    weak_threshold: float = 40.0
+) -> Dict[str, Any]:
+    """
+    CONCEPT: np.mean(), np.where(), and threshold classification.
+    Identifies a student's risk category based on overall average:
+        - HIGH RISK     : overall average < 40.0
+        - MODERATE RISK : overall average >= 40.0 and < 50.0
+        - LOW RISK      : overall average >= 50.0
+    Also flags individual weak subjects (< 40.0).
+    """
+    if len(row_marks) == 0:
+        return {
+            "average": 0.0,
+            "weak_subjects": "None",
+            "risk_status": "LOW RISK"
+        }
+
+    overall_avg = float(np.mean(row_marks))
+
+    # Identify individual weak subjects (< weak_threshold)
+    weak_indices = np.where(row_marks < weak_threshold)[0]
+    if len(weak_indices) > 0:
+        weak_subjs = ", ".join([subjects[i] for i in weak_indices])
+    else:
+        weak_subjs = "None"
+
+    # Risk status classification based on overall average
+    if overall_avg < 40.0:
+        risk_status = "HIGH RISK"
+    elif overall_avg < 50.0:
+        risk_status = "MODERATE RISK"
+    else:
+        risk_status = "LOW RISK"
+
+    return {
+        "average": overall_avg,
+        "weak_subjects": weak_subjs,
+        "risk_status": risk_status
+    }
+
+
+def detect_all_at_risk_students(
+    students: List[str],
+    subjects: List[str],
+    marks_array: np.ndarray
+) -> Dict[str, Any]:
+    """
+    CONCEPT: Class-wide Risk Detection & Vectorized Risk Counts using NumPy.
+    Scans all students to extract at-risk individuals and calculates summary statistics.
+    Handles empty datasets safely.
+    """
+    if len(students) == 0 or marks_array.size == 0:
+        return {
+            "students_risk": [],
+            "summary": {
+                "total": 0,
+                "high_risk": 0,
+                "moderate_risk": 0,
+                "low_risk": 0
+            }
+        }
+
+    # Vectorized average calculation
+    averages = np.mean(marks_array, axis=1)
+
+    # Calculate summary statistics using NumPy boolean masks
+    high_risk_count = int(np.sum(averages < 40.0))
+    moderate_risk_count = int(np.sum((averages >= 40.0) & (averages < 50.0)))
+    low_risk_count = int(np.sum(averages >= 50.0))
+
+    students_risk = []
+    for idx, student in enumerate(students):
+        row_marks = marks_array[idx]
+        risk_info = detect_student_risk(row_marks, subjects)
+        risk_info["student"] = student
+        students_risk.append(risk_info)
+
+    return {
+        "students_risk": students_risk,
+        "summary": {
+            "total": len(students),
+            "high_risk": high_risk_count,
+            "moderate_risk": moderate_risk_count,
+            "low_risk": low_risk_count
+        }
+    }
+
+
+
 

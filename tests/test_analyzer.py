@@ -40,6 +40,8 @@ from analyzer import (
     get_all_students_subject_breakdown,
     get_overall_subject_analytics,
     compute_student_rankings,
+    detect_student_risk,
+    detect_all_at_risk_students,
 )
 
 
@@ -273,6 +275,62 @@ class TestStudentPerformanceAnalyzer(unittest.TestCase):
         """Tests ranking calculation with an empty dataset."""
         rankings = compute_student_rankings([], np.array([]))
         self.assertEqual(rankings, [])
+
+    def test_detect_student_risk_high(self) -> None:
+        """Tests at-risk classification for a student with average < 40.0 (HIGH RISK)."""
+        subjects = ["Math", "DBMS", "OS", "Python"]
+        high_risk_marks = np.array([35.0, 38.0, 32.0, 41.0])  # avg = 36.5
+        res = detect_student_risk(high_risk_marks, subjects)
+        self.assertEqual(res["risk_status"], "HIGH RISK")
+        self.assertAlmostEqual(res["average"], 36.5)
+        self.assertIn("OS", res["weak_subjects"])
+
+    def test_detect_student_risk_moderate(self) -> None:
+        """Tests at-risk classification for a student with average 40.0 to 50.0 (MODERATE RISK)."""
+        subjects = ["Math", "DBMS", "OS", "Python"]
+        mod_risk_marks = np.array([45.0, 48.0, 38.0, 54.0])  # avg = 46.25
+        res = detect_student_risk(mod_risk_marks, subjects)
+        self.assertEqual(res["risk_status"], "MODERATE RISK")
+        self.assertAlmostEqual(res["average"], 46.25)
+        self.assertEqual(res["weak_subjects"], "OS")
+
+    def test_detect_student_risk_low(self) -> None:
+        """Tests at-risk classification for a student with average >= 50.0 (LOW RISK)."""
+        subjects = ["Math", "DBMS", "OS", "Python"]
+        low_risk_marks = np.array([80.0, 85.0, 90.0, 75.0])
+        res = detect_student_risk(low_risk_marks, subjects)
+        self.assertEqual(res["risk_status"], "LOW RISK")
+        self.assertEqual(res["weak_subjects"], "None")
+
+    def test_detect_student_risk_weak_subjects(self) -> None:
+        """Tests that a student with average >= 50.0 and one low subject is flagged for weak subject while staying LOW RISK."""
+        subjects = ["Math", "DBMS", "OS", "Python"]
+        marks_with_weak_subj = np.array([90.0, 35.0, 85.0, 80.0])  # avg = 72.5
+        res = detect_student_risk(marks_with_weak_subj, subjects)
+        self.assertEqual(res["risk_status"], "LOW RISK")
+        self.assertEqual(res["weak_subjects"], "DBMS")
+
+    def test_detect_all_at_risk_students_multiple(self) -> None:
+        """Tests at-risk detection for multiple students and summary stats."""
+        students = ["Arun", "Priya", "Rahul"]
+        subjects = ["Math", "DBMS", "OS", "Python"]
+        marks_matrix = np.array([
+            [35.0, 38.0, 32.0, 41.0],  # Arun: 36.5 (HIGH RISK)
+            [45.0, 48.0, 38.0, 54.0],  # Priya: 46.25 (MODERATE RISK)
+            [80.0, 85.0, 90.0, 75.0]   # Rahul: 82.5 (LOW RISK)
+        ])
+        res = detect_all_at_risk_students(students, subjects, marks_matrix)
+        summary = res["summary"]
+        self.assertEqual(summary["total"], 3)
+        self.assertEqual(summary["high_risk"], 1)
+        self.assertEqual(summary["moderate_risk"], 1)
+        self.assertEqual(summary["low_risk"], 1)
+
+    def test_detect_all_at_risk_students_empty(self) -> None:
+        """Tests at-risk detection with an empty dataset."""
+        res = detect_all_at_risk_students([], [], np.array([]))
+        self.assertEqual(res["students_risk"], [])
+        self.assertEqual(res["summary"]["total"], 0)
 
     def test_validate_mark_valid(self) -> None:
         """Tests mark validator with valid inputs."""

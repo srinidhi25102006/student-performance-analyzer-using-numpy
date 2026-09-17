@@ -43,7 +43,8 @@ The **Student Performance Analyzer** processes student marks matrices using pure
 12. **Subject-wise Performance Analysis**: Analyze each student's marks per subject, identify strongest/weakest subjects, calculate overall subject averages, and identify highest/lowest performing subjects with **graceful tie-handling**.
 13. **CSV Dataset Support**: Load student performance records dynamically from `.csv` files with automated column detection and validation for missing values, invalid ranges, or header errors.
 14. **At-Risk Student Detection**: Automatically identify students needing academic support based on overall average risk thresholds (`High Risk` < 40, `Moderate Risk` 40 to < 50, `Low Risk` >= 50) and identify individual subject score weaknesses (< 40 mark) using vectorized boolean masking.
-15. **Interactive CLI & Validation**: Switch between pre-loaded 5x5 sample dataset, custom interactive user entry, and external CSV files with validation ($0 - 100$).
+15. **Performance Visualization using Matplotlib**: Render visual charts including subject average bar charts, student comparison bar charts, student performance trend line charts (with trend line slope), at-risk status summary charts, and a complete 2x2 analytical dashboard.
+16. **Interactive CLI & Validation**: Switch between pre-loaded 5x5 sample dataset, custom interactive user entry, and external CSV files with validation ($0 - 100$).
 
 ---
 
@@ -76,6 +77,7 @@ Student_ID,Name,Math,DBMS,OS,Python
 
 - **Python 3**: Core application logic, `csv` standard library parser, and `unittest`.
 - **NumPy**: Matrix creation, axis aggregations, boolean masking, index sorting (`np.argsort`), broadcasting, polynomial fitting, and tie resolution.
+- **Matplotlib**: Graphical chart generation, bar charts, line trends, risk summaries, and multi-figure subplots.
 
 ---
 
@@ -108,11 +110,13 @@ student-performance-analyzer/
 ├── src/
 │   ├── main.py           # CLI menu, table formatting, and application workflow
 │   ├── analyzer.py       # Modular NumPy computational functions with comments
+│   ├── visualization.py  # Matplotlib chart routines and visual data preparation
 │   └── data.py           # Pre-loaded sample dataset, CSV parser, & validation
 ├── tests/
-│   └── test_analyzer.py  # Unit test suite built with Python's unittest module
+│   ├── test_analyzer.py      # Unit test suite for computational analyzer & CSV loader
+│   └── test_visualization.py # Unit test suite for visual data prep & safeguards
 ├── README.md             # Project documentation and guide
-├── requirements.txt      # Project dependencies (numpy)
+├── requirements.txt      # Project dependencies (numpy, matplotlib)
 ├── .gitignore            # Git exclusion rules for Python
 └── LICENSE               # MIT License
 ```
@@ -164,41 +168,23 @@ python src/main.py
 7. View Class Insights, High Performers & Rankings
 8. View Subject Deviations Matrix (NumPy Broadcasting Demo)
 9. View Student Performance Predictions (NumPy Linear Regression)
-10. Run Complete Full Analytical Report
-11. Load & Analyze Student Data from CSV File
-12. Switch to Custom Interactive Student Data Entry
-13. Reset to Default Sample Dataset
-14. Exit Application
+10. View Performance Visualizations (Matplotlib Charts & Dashboard)
+11. Run Complete Full Analytical Report
+12. Load & Analyze Student Data from CSV File
+13. Switch to Custom Interactive Student Data Entry
+14. Reset to Default Sample Dataset
+15. Exit Application
 ```
 
-### Running At-Risk Student Detection via CLI
+### Performance Visualizations (Matplotlib Charts)
 
-Select Option `6` in the main menu to display the dedicated **At-Risk Students Detection Report**:
+Select Option `10` in the main menu to open the **Matplotlib Performance Visualizations Submenu**:
 
-```text
-================================================================================
-                      AT-RISK STUDENTS DETECTION REPORT         
-================================================================================
-Name: Arun
-Overall Average: 87.6
-Weak Subjects: None
-Risk Status: LOW RISK
-
-Name: Divya
-Overall Average: 78.0
-Weak Subjects: None
-Risk Status: LOW RISK
-
-...
---------------------------------------------------------------------------------
-SUMMARY:
-
-Total Students: 5
-High Risk: 0
-Moderate Risk: 0
-Low Risk: 5
---------------------------------------------------------------------------------
-```
+1. **Subject-Wise Average Performance (Bar Chart)**: Displays average marks across all students for each subject.
+2. **Student Performance Comparison (Bar Chart)**: Displays overall average mark for every student with student names clearly labeled on the x-axis.
+3. **Student Performance Trend (Line Chart)**: Displays a selected student's marks across test assessments with a fitted linear trend line.
+4. **At-Risk Student Summary (Bar Chart)**: Color-coded breakdown of students classified as `High Risk`, `Moderate Risk`, and `Low Risk`.
+5. **Complete 2x2 Analytics Dashboard**: Displays all 4 performance charts together in a single multi-panel window.
 
 ---
 
@@ -212,9 +198,9 @@ python -m unittest discover -s tests
 
 Expected Test Output:
 ```
-.......................................
+...............................................
 ----------------------------------------------------------------------
-Ran 39 tests in 0.250s
+Ran 47 tests in 2.343s
 
 OK
 ```

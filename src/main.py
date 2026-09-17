@@ -35,6 +35,13 @@ from analyzer import (
     compute_student_rankings,
     detect_all_at_risk_students,
 )
+from visualization import (
+    plot_subject_averages,
+    plot_student_comparison,
+    plot_student_trend,
+    plot_at_risk_summary,
+    plot_all_visualizations,
+)
 
 
 def print_divider(character: str = "=", length: int = 80) -> None:
@@ -311,6 +318,49 @@ def display_prediction_report(students: List[str], marks_array: np.ndarray) -> N
     print_divider("-")
 
 
+def display_visualization_menu(
+    students: List[str], subjects: List[str], marks_array: np.ndarray
+) -> None:
+    """Displays sub-menu for Matplotlib visual chart generation."""
+    print_divider("=")
+    print("            MATPLOTLIB PERFORMANCE VISUALIZATIONS               ")
+    print_divider("=")
+    print("1. Subject-Wise Average Performance (Bar Chart)")
+    print("2. Student Performance Comparison (Bar Chart)")
+    print("3. Student Performance Trend across Subjects (Line Chart)")
+    print("4. At-Risk Student Summary (Bar Chart)")
+    print("5. Complete 2x2 Analytics Dashboard (All Charts)")
+    print("6. Back to Main Menu")
+
+    v_choice = input("\nEnter visualization choice (1-6): ").strip()
+    if v_choice == "1":
+        plot_subject_averages(subjects, marks_array)
+    elif v_choice == "2":
+        plot_student_comparison(students, marks_array)
+    elif v_choice == "3":
+        if not students:
+            print("Warning: No students available.")
+            return
+        print("\nAvailable Students:")
+        for idx, name in enumerate(students, 1):
+            print(f"  {idx}. {name}")
+        st_idx_str = input("Select student number for trend chart (default 1): ").strip()
+        selected_name = None
+        if st_idx_str.isdigit():
+            idx_val = int(st_idx_str) - 1
+            if 0 <= idx_val < len(students):
+                selected_name = students[idx_val]
+        plot_student_trend(students, subjects, marks_array, student_name=selected_name)
+    elif v_choice == "4":
+        plot_at_risk_summary(students, subjects, marks_array)
+    elif v_choice == "5":
+        plot_all_visualizations(students, subjects, marks_array)
+    elif v_choice == "6":
+        return
+    else:
+        print("Invalid choice! Returning to Main Menu.")
+
+
 def run_full_report(students: List[str], subjects: List[str], marks_array: np.ndarray) -> None:
     """Runs all analytical reports in sequence."""
     display_marks_table(students, subjects, marks_array)
@@ -346,13 +396,14 @@ def main() -> None:
         print("7. View Class Insights, High Performers & Rankings")
         print("8. View Subject Deviations Matrix (NumPy Broadcasting Demo)")
         print("9. View Student Performance Predictions (NumPy Linear Regression)")
-        print("10. Run Complete Full Analytical Report")
-        print("11. Load & Analyze Student Data from CSV File")
-        print("12. Switch to Custom Interactive Student Data Entry")
-        print("13. Reset to Default Sample Dataset")
-        print("14. Exit Application")
+        print("10. View Performance Visualizations (Matplotlib Charts & Dashboard)")
+        print("11. Run Complete Full Analytical Report")
+        print("12. Load & Analyze Student Data from CSV File")
+        print("13. Switch to Custom Interactive Student Data Entry")
+        print("14. Reset to Default Sample Dataset")
+        print("15. Exit Application")
 
-        choice = input("\nEnter your choice (1-14): ").strip()
+        choice = input("\nEnter your choice (1-15): ").strip()
 
         if choice == "1":
             display_marks_table(students, subjects, marks_array)
@@ -374,25 +425,27 @@ def main() -> None:
         elif choice == "9":
             display_prediction_report(students, marks_array)
         elif choice == "10":
-            run_full_report(students, subjects, marks_array)
+            display_visualization_menu(students, subjects, marks_array)
         elif choice == "11":
+            run_full_report(students, subjects, marks_array)
+        elif choice == "12":
             students, subjects, marks_list = get_csv_dataset()
             marks_array = convert_to_array(marks_list)
             run_full_report(students, subjects, marks_array)
-        elif choice == "12":
+        elif choice == "13":
             students, subjects, marks_list = get_custom_dataset()
             marks_array = convert_to_array(marks_list)
             print("\nCustom data loaded successfully!")
             run_full_report(students, subjects, marks_array)
-        elif choice == "13":
+        elif choice == "14":
             students, subjects, marks_list = get_sample_dataset()
             marks_array = convert_to_array(marks_list)
             print("\nReset back to default sample dataset.")
-        elif choice == "14":
+        elif choice == "15":
             print("\nThank you for using Student Performance Analyzer! Goodbye.")
             sys.exit(0)
         else:
-            print("Invalid choice! Please select an option from 1 to 14.")
+            print("Invalid choice! Please select an option from 1 to 15.")
 
 
 if __name__ == "__main__":

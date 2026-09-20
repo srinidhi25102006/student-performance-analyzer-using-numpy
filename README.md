@@ -45,8 +45,32 @@ The **Student Performance Analyzer** processes student marks matrices using pure
 14. **At-Risk Student Detection**: Automatically identify students needing academic support based on overall average risk thresholds (`High Risk` < 40, `Moderate Risk` 40 to < 50, `Low Risk` >= 50) and identify individual subject score weaknesses (< 40 mark) using vectorized boolean masking.
 15. **Performance Visualization using Matplotlib**: Render visual charts including subject average bar charts, student comparison bar charts, student performance trend line charts (with trend line slope), at-risk status summary charts, and a complete 2x2 analytical dashboard.
 16. **Interactive CLI & Validation**: Switch between pre-loaded 5x5 sample dataset, custom interactive user entry, and external CSV files with validation ($0 - 100$).
+17. **Personalized Student Improvement Recommendations**: Automatically generate 2–4 targeted, actionable recommendations per student based on their weakest subject, performance trajectory (`Improving`, `Stable`, `Declining`), risk level (`High`, `Moderate`, `Low`), and upcoming assessment milestones.
 
 ---
+
+---
+
+## Personalized Recommendation Rules
+
+The recommendation engine (`src/recommender.py`) dynamically generates 2 to 4 personalized, prioritized improvement recommendations for each student by evaluating multiple analytical signals:
+
+| Category | Trigger Condition | Generated Recommendation |
+| :--- | :--- | :--- |
+| **Weak Subject (Core)** | Any identified weakest subject | `Focus on <Subject> fundamentals.` |
+| **Weak Subject (Practice)** | Weakest mark < 65.0, elevated risk, or declining trend | `Practice more <Subject> questions.` |
+| **Declining Trend** | Performance trend is `Declining` | `Review recent assessment topics and increase practice frequency.` |
+| **Stable Trend** | Performance trend is `Stable` | `Set targeted goals to convert consistent performance into active improvement.` |
+| **Improving Trend** | Performance trend is `Improving` | `Maintain your positive learning momentum and continue consistent study habits.` |
+| **High Risk** | Risk level is `High` or average < 50.0 | `Create a focused study plan for low-performing subjects.` |
+| **Moderate Risk** | Risk level is `Moderate` or average < 70.0 | `Dedicate extra weekly revision time to strengthen moderate-scoring subjects.` |
+| **Low Risk / Advanced** | Risk level is `Low` or trend is `Improving` | `Set higher benchmark targets for the upcoming evaluation.` |
+| **Follow-up / Monitoring** | Declining trend or High/Moderate risk | `Monitor performance in the next assessment.` |
+
+### Recommendation System Guarantees:
+- **Zero Duplicate Recommendations**: All generated guidance items are uniquely ordered by priority.
+- **Strict Size Bounds**: Guaranteed to deliver between **2 and 4** recommendations per student.
+- **Architectural Reuse**: Reuses `analyzer.py` functions (`get_student_subject_breakdown`, `predict_single_student`, `detect_student_risk`) without duplicating calculations.
 
 ## CSV Dataset Specifications
 
@@ -110,11 +134,13 @@ student-performance-analyzer/
 ├── src/
 │   ├── main.py           # CLI menu, table formatting, and application workflow
 │   ├── analyzer.py       # Modular NumPy computational functions with comments
+│   ├── recommender.py    # Personalized recommendation engine and rule generator
 │   ├── visualization.py  # Matplotlib chart routines and visual data preparation
 │   └── data.py           # Pre-loaded sample dataset, CSV parser, & validation
 ├── tests/
 │   ├── test_analyzer.py      # Unit test suite for computational analyzer & CSV loader
-│   └── test_visualization.py # Unit test suite for visual data prep & safeguards
+│   ├── test_visualization.py # Unit test suite for visual data prep & safeguards
+│   └── test_recommender.py   # Unit test suite for personalized recommendations
 ├── README.md             # Project documentation and guide
 ├── requirements.txt      # Project dependencies (numpy, matplotlib)
 ├── .gitignore            # Git exclusion rules for Python
@@ -169,11 +195,12 @@ python src/main.py
 8. View Subject Deviations Matrix (NumPy Broadcasting Demo)
 9. View Student Performance Predictions (NumPy Linear Regression)
 10. View Performance Visualizations (Matplotlib Charts & Dashboard)
-11. Run Complete Full Analytical Report
-12. Load & Analyze Student Data from CSV File
-13. Switch to Custom Interactive Student Data Entry
-14. Reset to Default Sample Dataset
-15. Exit Application
+11. View Personalized Student Recommendations
+12. Run Complete Full Analytical Report
+13. Load & Analyze Student Data from CSV File
+14. Switch to Custom Interactive Student Data Entry
+15. Reset to Default Sample Dataset
+16. Exit Application
 ```
 
 ### Performance Visualizations (Matplotlib Charts)
@@ -198,9 +225,9 @@ python -m unittest discover -s tests
 
 Expected Test Output:
 ```
-...............................................
+...........................................................
 ----------------------------------------------------------------------
-Ran 47 tests in 2.343s
+Ran 59 tests in 1.269s
 
 OK
 ```
@@ -238,6 +265,23 @@ Rank   | Student      |    Total |  Average |  Grade | Status
 1      | Karthik      |   457.00 |    91.40 |     A+ |   Pass
 4      | Meena        |   350.00 |    70.00 |      B |   Pass
 5      | Rahul        |   292.00 |    58.40 |      D |   Pass
+--------------------------------------------------------------------------------
+
+================================================================================
+      PERSONALIZED STUDENT IMPROVEMENT RECOMMENDATIONS          
+================================================================================
+Student: Rahul
+
+Overall Average: 68.5
+Weak Subject: DBMS
+Performance Trend: Declining
+Risk Level: Moderate
+
+Recommendations:
+1. Focus on DBMS fundamentals.
+2. Practice more DBMS questions.
+3. Review recent assessment topics and increase practice frequency.
+4. Monitor performance in the next assessment.
 --------------------------------------------------------------------------------
 ```
 

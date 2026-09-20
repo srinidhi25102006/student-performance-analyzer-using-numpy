@@ -42,6 +42,10 @@ from visualization import (
     plot_at_risk_summary,
     plot_all_visualizations,
 )
+from recommender import (
+    generate_all_recommendations,
+    format_recommendations_report,
+)
 
 
 def print_divider(character: str = "=", length: int = 80) -> None:
@@ -361,6 +365,28 @@ def display_visualization_menu(
         print("Invalid choice! Returning to Main Menu.")
 
 
+def display_recommendations_report(
+    students: List[str],
+    subjects: List[str],
+    marks_array: np.ndarray
+) -> None:
+    """Displays personalized improvement recommendations for each student."""
+    recommendations_list = generate_all_recommendations(students, subjects, marks_array)
+
+    print_divider("=")
+    print("      PERSONALIZED STUDENT IMPROVEMENT RECOMMENDATIONS          ")
+    print_divider("=")
+
+    if not recommendations_list:
+        print("No student data available for recommendations.")
+    else:
+        for idx, rec in enumerate(recommendations_list):
+            print(format_recommendations_report(rec))
+            if idx < len(recommendations_list) - 1:
+                print("\n" + "-" * 60 + "\n")
+    print_divider("-")
+
+
 def run_full_report(students: List[str], subjects: List[str], marks_array: np.ndarray) -> None:
     """Runs all analytical reports in sequence."""
     display_marks_table(students, subjects, marks_array)
@@ -373,6 +399,7 @@ def run_full_report(students: List[str], subjects: List[str], marks_array: np.nd
     display_class_insights(students, subjects, marks_array)
     display_deviations_report(students, subjects, marks_array)
     display_prediction_report(students, marks_array)
+    display_recommendations_report(students, subjects, marks_array)
 
 
 def main() -> None:
@@ -397,13 +424,14 @@ def main() -> None:
         print("8. View Subject Deviations Matrix (NumPy Broadcasting Demo)")
         print("9. View Student Performance Predictions (NumPy Linear Regression)")
         print("10. View Performance Visualizations (Matplotlib Charts & Dashboard)")
-        print("11. Run Complete Full Analytical Report")
-        print("12. Load & Analyze Student Data from CSV File")
-        print("13. Switch to Custom Interactive Student Data Entry")
-        print("14. Reset to Default Sample Dataset")
-        print("15. Exit Application")
+        print("11. View Personalized Student Recommendations")
+        print("12. Run Complete Full Analytical Report")
+        print("13. Load & Analyze Student Data from CSV File")
+        print("14. Switch to Custom Interactive Student Data Entry")
+        print("15. Reset to Default Sample Dataset")
+        print("16. Exit Application")
 
-        choice = input("\nEnter your choice (1-15): ").strip()
+        choice = input("\nEnter your choice (1-16): ").strip()
 
         if choice == "1":
             display_marks_table(students, subjects, marks_array)
@@ -427,25 +455,27 @@ def main() -> None:
         elif choice == "10":
             display_visualization_menu(students, subjects, marks_array)
         elif choice == "11":
-            run_full_report(students, subjects, marks_array)
+            display_recommendations_report(students, subjects, marks_array)
         elif choice == "12":
+            run_full_report(students, subjects, marks_array)
+        elif choice == "13":
             students, subjects, marks_list = get_csv_dataset()
             marks_array = convert_to_array(marks_list)
             run_full_report(students, subjects, marks_array)
-        elif choice == "13":
+        elif choice == "14":
             students, subjects, marks_list = get_custom_dataset()
             marks_array = convert_to_array(marks_list)
             print("\nCustom data loaded successfully!")
             run_full_report(students, subjects, marks_array)
-        elif choice == "14":
+        elif choice == "15":
             students, subjects, marks_list = get_sample_dataset()
             marks_array = convert_to_array(marks_list)
             print("\nReset back to default sample dataset.")
-        elif choice == "15":
+        elif choice == "16":
             print("\nThank you for using Student Performance Analyzer! Goodbye.")
             sys.exit(0)
         else:
-            print("Invalid choice! Please select an option from 1 to 15.")
+            print("Invalid choice! Please select an option from 1 to 16.")
 
 
 if __name__ == "__main__":
